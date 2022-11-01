@@ -1,5 +1,3 @@
-psycopg2-binary
 pydantic[dotenv]
-alembic
 vk_api
-SQLAlchemy
+requests
