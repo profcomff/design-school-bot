@@ -1,7 +1,15 @@
 class Start:
-    start_button: str = "Начать"
+    START_BUTTON: str = "Начать"
+
+
+class Spam:
+    START_MESSAGE = "Привет!"
+    START_BUTTON = "Хочу на ШЭ ЭМ"
+    START_REPLY = "Мы добавили тебя в список"
 
 
 class Registry:
-    start_message = "Хочу на ШЭ ЭМ"
-    start_reply = "Мы добавили тебя в список"
+    START_MESSAGE = """Привет, мы принесли тебе новость нереальной крутости!\n
+    Сядь, а то упадёшь — РЕГИСТРАЦИЯ НА ШЭ ЭМ ОТКРЫТА!\n
+    Теперь всё просто — нажимай кнопку «Регистрация» и следуй инструкции."""
+    START_BUTTON = "Зарегистрироваться!"
