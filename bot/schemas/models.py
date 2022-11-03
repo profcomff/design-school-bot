@@ -1,6 +1,28 @@
 from .base import Base
-from design_bot.models.db import Year, RequestTypes, Directions
+from enum import Enum
 from pydantic import HttpUrl
+
+
+class Year(str, Enum):
+    FIRST = "1"
+    SECOND = "2"
+    THIRD = "3"
+    FOURTH = "4"
+    FIFTH = "1м"
+    SIXTH = "2м"
+
+
+class Directions(str, Enum):
+    PHOTO = "PHOTO"
+    CONTENT = "CONTENT"
+    SOCIALWEBDESIGN = "SOCIALWEBDESIGN"
+    IDENTICDESIGN = "IDENTICDESIGN"
+
+
+class RequestTypes(str, Enum):
+    TEXT = "text"
+    VIDEO = "video"
+    FILE = "file"
 
 
 class UserPost(Base):
@@ -11,7 +33,7 @@ class UserPost(Base):
     last_name: str
     year: Year
     readme: str
-    link: HttpUrl
+    social_web_id: str
 
 
 class UserGet(UserPost):
@@ -19,7 +41,11 @@ class UserGet(UserPost):
 
 
 class SpamPost(Base):
-    user_link: HttpUrl
+    social_web_id: str
+
+
+class SpamGet(SpamPost):
+    id: int
 
 
 class VideoPost(Base):
@@ -50,3 +76,4 @@ class DirectionPost(Base):
 
 class DirectionGet(DirectionPost):
     id: int
+

@@ -6,6 +6,12 @@ class Settings(BaseSettings):
     """Application settings"""
 
     TOKEN: str
+    BACKEND_URL: str
+    SPAM_MODE: str
+    REGISTRY_MODE: str
+    WORKFLOW_MODE: str
+    SUMMARY_MODE: str
+    CURRENT_MODE: str = "Not stated"
 
     class Config:
         """Pydantic BaseSettings config"""
