@@ -2,7 +2,7 @@ from logging import getLogger
 from vk_api.vk_api import VkApiMethod
 from vk_api.utils import get_random_id
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-from .msg_reactions import Spam
+
 
 logger = getLogger(__name__)
 

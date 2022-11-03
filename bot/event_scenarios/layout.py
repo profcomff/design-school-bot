@@ -3,12 +3,12 @@ from vk_api.longpoll import Event, VkEventType
 from vk_api.vk_api import VkApiMethod
 from logging import getLogger
 
-import bot.utils.msg_utils as utils
-import bot.utils.msg_reactions as reactions
-from bot.utils.mode import change_mode
+import bot.event_scenarios.msg_utils as utils
+import bot.event_scenarios.msg_reactions as reactions
+from bot.event_scenarios.mode import change_mode
 
-from bot.utils.mode import Mode
-import bot.utils.event_processors as processor
+from bot.event_scenarios.mode import Mode
+import bot.event_scenarios.event_processors as processor
 
 logger = getLogger(__name__)
 settings = get_settings()

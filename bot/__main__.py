@@ -1,5 +1,5 @@
 from bot.config.vk_session import longpoll, vk
-from bot.utils.layout import process_event
+from bot.event_scenarios.layout import process_event
 from logging import getLogger
 import logging
 
