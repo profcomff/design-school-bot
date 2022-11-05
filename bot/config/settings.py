@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic import BaseSettings, RedisDsn
 from functools import lru_cache
 
 
@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     WORKFLOW_MODE: str
     SUMMARY_MODE: str
     CURRENT_MODE: str = "Not stated"
+    REDIS_DSN: RedisDsn
 
     class Config:
         """Pydantic BaseSettings config"""
