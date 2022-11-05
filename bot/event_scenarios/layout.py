@@ -4,7 +4,6 @@ from vk_api.vk_api import VkApiMethod
 from logging import getLogger
 
 import bot.event_scenarios.msg_utils as utils
-import bot.event_scenarios.msg_reactions as reactions
 from bot.event_scenarios.mode import change_mode
 
 from bot.event_scenarios.mode import Mode
@@ -24,6 +23,7 @@ def process_event(vk: VkApiMethod, event: Event, **kwargs):
         if settings.CURRENT_MODE == Mode.spam:
             processor.process_spam(vk, event, **kwargs)
         elif settings.CURRENT_MODE == Mode.registry:
+            REGISTRATION_FLOW = dict()
             processor.process_registry(vk, event, **kwargs)
         elif settings.CURRENT_MODE == Mode.workflow:
             processor.process_workflow(vk, event, **kwargs)

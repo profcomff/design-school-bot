@@ -9,7 +9,7 @@ class Name:
         if len(self.fio) == 3:
             self.name = self.fio[1].capitalize()
             self.last_name = self.fio[0].capitalize()
-            self.middle_name = self.fio[3].capitalize()
+            self.middle_name = self.fio[2].capitalize()
             self.success = True
 
     def is_valid(self):

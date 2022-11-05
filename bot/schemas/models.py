@@ -26,13 +26,13 @@ class RequestTypes(str, Enum):
 
 
 class UserPost(Base):
-    union_id: int
-    direction_id: int
-    first_name: str
-    middle_name: str
-    last_name: str
-    year: Year
-    readme: str
+    union_id: int | None
+    direction_id: int | None
+    first_name: str | None
+    middle_name: str | None
+    last_name: str | None
+    year: Year | None
+    readme: str | None
     social_web_id: str
 
 
