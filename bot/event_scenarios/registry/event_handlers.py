@@ -98,4 +98,20 @@ def on_about(vk: VkApiMethod, event: Event):
     utils.send_message(vk, event.user_id, message=reactions.Registry.ON_CV_ANSWER)
     redis_db.hset(name=event.user_id, key="registrated", value="registrated")
     # post user data to backend
-    # requests.post()
+    register_data = redis_db.hgetall(event.user_id)
+    first_name, last_name, middle_name = register_data[b'name'].decode('utf-8').split()
+    print(register_data)
+    user = schemas.UserPost(
+        union_id=register_data[b'union_num'].decode('utf-8'),
+        direction_id=register_data[b'direction_id'].decode('utf-8'),
+        first_name=first_name,
+        last_name=last_name,
+        middle_name=middle_name,
+        year=register_data[b'year'].decode('utf-8'),
+        readme=event.text,
+        social_web_id=register_data[b'user_id'].decode('utf-8')
+    )
+    requests.post(f"{settings.BACKEND_URL}/user/",
+                  json=user.json(),
+                  headers=settings.auth_headers)
+

@@ -1,6 +1,6 @@
-from enum import Enum
 from .base import Base
 from pydantic import HttpUrl
+from enum import Enum
 
 
 class Year(str, Enum):
@@ -25,7 +25,14 @@ class RequestTypes(str, Enum):
     FILE = "file"
 
 
-class CreateUser(Base):
+class UserPost(Base):
+    union_id: str
+    direction_id: int
+    first_name: str
+    middle_name: str
+    last_name: str
+    year: Year
+    readme: str
     social_web_id: str
 
 
@@ -68,7 +75,7 @@ class VideoPost(Base):
     link: HttpUrl
     request: str | None
     direction_id: int
-    request_type: RequestTypes
+    request_type: RequestTypes | None
 
 
 class VideoGet(VideoPost):

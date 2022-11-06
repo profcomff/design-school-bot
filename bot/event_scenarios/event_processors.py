@@ -39,6 +39,8 @@ def process_spam(vk: VkApiMethod, event: Event, **kwargs):
 
 def process_registry(vk: VkApiMethod, event: Event, **kwargs):
     redis_db = redis.Redis.from_url(settings.REDIS_DSN)
+    if event.text == "Начать":
+        registry.on_mode_change(vk)
     if event.text == settings.REGISTRY_MODE:
         registry.on_mode_change(vk)
     elif event.text == reactions.Registry.START_BUTTON:
