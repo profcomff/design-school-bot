@@ -16,13 +16,6 @@ class Settings(BaseSettings):
     CURRENT_MODE: str = "Not stated"
     REDIS_DSN: RedisDsn
 
-    @property
-    def auth_headers(self):
-        return {
-            "accept": "application/json",
-            "Authorization": f"Bearer {self.BACKEND_PASSWORD}",
-        }
-
     class Config:
         """Pydantic BaseSettings config"""
 
