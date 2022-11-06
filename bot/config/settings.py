@@ -6,13 +6,13 @@ class Settings(BaseSettings):
     """Application settings"""
 
     TOKEN: str
-    BACKEND_URL: AnyHttpUrl = 'https://designschool.api.test.profcomff.com'
-    BACKEND_USER: str = 'admin'
-    BACKEND_PASSWORD: str = '42'
-    SPAM_MODE: str = 'spam'
-    REGISTRY_MODE: str = 'registry'
-    WORKFLOW_MODE: str = 'workflow'
-    SUMMARY_MODE: str = 'summary'
+    BACKEND_URL: AnyHttpUrl = "https://designschool.api.test.profcomff.com"
+    BACKEND_USER: str = "admin"
+    BACKEND_PASSWORD: str = "42"
+    SPAM_MODE: str = "spam"
+    REGISTRY_MODE: str = "registry"
+    WORKFLOW_MODE: str = "workflow"
+    SUMMARY_MODE: str = "summary"
     CURRENT_MODE: str = "Not stated"
     REDIS_DSN: RedisDsn
 
