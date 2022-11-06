@@ -23,7 +23,6 @@ def process_event(vk: VkApiMethod, event: Event, **kwargs):
         if settings.CURRENT_MODE == Mode.spam:
             processor.process_spam(vk, event, **kwargs)
         elif settings.CURRENT_MODE == Mode.registry:
-            REGISTRATION_FLOW = dict()
             processor.process_registry(vk, event, **kwargs)
         elif settings.CURRENT_MODE == Mode.workflow:
             processor.process_workflow(vk, event, **kwargs)

@@ -1,5 +1,5 @@
-from .base import Base
 from enum import Enum
+from .base import Base
 from pydantic import HttpUrl
 
 
@@ -25,23 +25,39 @@ class RequestTypes(str, Enum):
     FILE = "file"
 
 
-class UserPost(Base):
-    union_id: int | None
+class CreateUser(Base):
+    social_web_id: str
+
+
+class UserPatch(Base):
+    union_id: str | None
     direction_id: int | None
     first_name: str | None
     middle_name: str | None
     last_name: str | None
     year: Year | None
     readme: str | None
-    social_web_id: str
 
 
-class UserGet(UserPost):
+class UserGet(Base):
     id: int
+    union_id: str
+    direction_id: int
+    first_name: str
+    middle_name: str
+    last_name: str
+    year: Year
+    readme: str
+    social_web_id: str
+    folder_id: str
 
 
 class SpamPost(Base):
     social_web_id: str
+
+
+class SpamGet(SpamPost):
+    id: int
 
 
 class SpamGet(SpamPost):
@@ -61,8 +77,6 @@ class VideoGet(VideoPost):
 
 class ResponsePost(Base):
     content: str | None
-    video_id: int
-    user_id: int
 
 
 class ResponseGet(ResponsePost):
