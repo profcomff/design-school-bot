@@ -11,6 +11,8 @@ from bot.event_scenarios.mode import Mode
 import bot.event_scenarios.event_processors as processor
 
 logger = getLogger(__name__)
+settings = get_settings()
+
 
 def process_event(vk: VkApiMethod, event: Event, **kwargs):
     if event.type == VkEventType.MESSAGE_NEW and event.from_user:
