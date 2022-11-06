@@ -18,6 +18,10 @@ directions = get_directions()
 logger = getLogger(__name__)
 
 
+def on_random_begin(vk: VkApiMethod, event: Event):
+    utils.on_start_message_button(vk, event.user_id, message='Привет!', button_txt="Начать")
+
+
 def on_mode_change(vk: VkApiMethod) -> None:
     """on 'register_mode' code bot sends messages to registrate"""
     users: list = requests.get(
@@ -36,6 +40,16 @@ def on_mode_change(vk: VkApiMethod) -> None:
 
 
 def on_start_button(vk: VkApiMethod, event: Event) -> None:
+    redis_db.hdel(event.user_id,
+                  "name",
+                  "union_num",
+                  "year",
+                  "direction_id",
+                  "registrated",
+                  "approved",
+                  "start_button"
+                  )
+    redis_db.hset(event.user_id, 'start_button', 'started')
     utils.send_message(vk, event.user_id, message=reactions.Registry.FIO_QUESTION)
     redis_db.hset(name=event.user_id, key="social_web_id", value=event.user_id)
 
@@ -70,7 +84,7 @@ def on_year_ans(vk: VkApiMethod, event: Event) -> None:
     )
 
 
-def on_direction_ans(vk: VkApiMethod, event: Event, **kwargs):
+def on_direction_ans(vk: VkApiMethod, event: Event):
     db_id = 1
     for d in directions:
         if d.name == event.text:
@@ -95,14 +109,9 @@ def on_approve(vk: VkApiMethod, event: Event):
     if event.text == reactions.Registry.APPROVE_FALSE:
         utils.send_message(vk, event.user_id, message="Ладно, давай снова:")
         redis_db.hdel(event.user_id,
-                      "name",
-                      "union_num",
-                      "year",
-                      "direction_id",
-                      "registrated",
-                      "approved",
+                      "direction_id"
                       )
-        on_start_button(vk, event)
+        on_year_ans(vk, event)
 
 
 def on_about(vk: VkApiMethod, event: Event):
@@ -110,18 +119,24 @@ def on_about(vk: VkApiMethod, event: Event):
     redis_db.hset(name=event.user_id, key="registrated", value="registrated")
     # post user data to backend
     register_data = redis_db.hgetall(event.user_id)
-    last_name, first_name, middle_name = register_data[b"name"].decode("utf-8").split()
+    last_name, first_name = register_data[b"name"].decode("utf-8").split()[:3]
     user = schemas.UserPost(
         union_id=register_data[b"union_num"].decode("utf-8"),
         direction_id=register_data[b"direction_id"].decode("utf-8"),
         first_name=first_name,
         last_name=last_name,
-        middle_name=middle_name,
+        middle_name='-',
         year=register_data[b"year"].decode("utf-8"),
         readme=event.text,
-        social_web_id=register_data[b"user_id"].decode("utf-8"),
+        social_web_id=register_data[b"social_web_id"].decode("utf-8"),
     )
     res = requests.post(
         f"{settings.BACKEND_URL}/user/", json=user.dict(), headers=auth_headers
     )
-    logger.info(f"{res.status_code}-{register_data[b'user_id'].decode('utf-8')}")
+    logger.info(f"{res.status_code}-{register_data[b'social_web_id'].decode('utf-8')}")
+
+
+def on_random_end(vk: VkApiMethod, event: Event):
+    utils.send_message(vk,
+                       event.user_id,
+                       message="Ты уже зарегистрировался, мы сообщим о начале учебы!")
