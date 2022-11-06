@@ -119,13 +119,17 @@ def on_about(vk: VkApiMethod, event: Event):
     redis_db.hset(name=event.user_id, key="registrated", value="registrated")
     # post user data to backend
     register_data = redis_db.hgetall(event.user_id)
-    last_name, first_name = register_data[b"name"].decode("utf-8").split()[:3]
+    fio = register_data[b"name"].decode("utf-8").split()
+    if len(fio) == 3:
+        middle_name = fio[2]
+    elif len(fio) == 2:
+        middle_name = '-'
     user = schemas.UserPost(
         union_id=register_data[b"union_num"].decode("utf-8"),
         direction_id=register_data[b"direction_id"].decode("utf-8"),
-        first_name=first_name,
-        last_name=last_name,
-        middle_name='-',
+        first_name=fio[1],
+        last_name=fio[0],
+        middle_name=middle_name,
         year=register_data[b"year"].decode("utf-8"),
         readme=event.text,
         social_web_id=register_data[b"social_web_id"].decode("utf-8"),
