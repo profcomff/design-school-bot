@@ -1,6 +1,7 @@
 import requests
 import redis
 import bot.schemas.models as schemas
+from logging import getLogger
 from vk_api.longpoll import Event
 from vk_api.vk_api import VkApiMethod
 from bot.config import get_settings
@@ -12,6 +13,7 @@ from .utils import Name, get_directions
 settings = get_settings()
 redis_db = redis.Redis.from_url(settings.REDIS_DSN)
 directions = get_directions()
+logger = getLogger(__name__)
 
 
 def on_mode_change(vk: VkApiMethod) -> None:
@@ -99,19 +101,18 @@ def on_about(vk: VkApiMethod, event: Event):
     redis_db.hset(name=event.user_id, key="registrated", value="registrated")
     # post user data to backend
     register_data = redis_db.hgetall(event.user_id)
-    first_name, last_name, middle_name = register_data[b'name'].decode('utf-8').split()
-    print(register_data)
+    first_name, last_name, middle_name = register_data[b"name"].decode("utf-8").split()
     user = schemas.UserPost(
-        union_id=register_data[b'union_num'].decode('utf-8'),
-        direction_id=register_data[b'direction_id'].decode('utf-8'),
+        union_id=register_data[b"union_num"].decode("utf-8"),
+        direction_id=register_data[b"direction_id"].decode("utf-8"),
         first_name=first_name,
         last_name=last_name,
         middle_name=middle_name,
-        year=register_data[b'year'].decode('utf-8'),
+        year=register_data[b"year"].decode("utf-8"),
         readme=event.text,
-        social_web_id=register_data[b'user_id'].decode('utf-8')
+        social_web_id=register_data[b"user_id"].decode("utf-8"),
     )
-    requests.post(f"{settings.BACKEND_URL}/user/",
-                  json=user.json(),
-                  headers=settings.auth_headers)
-
+    res = requests.post(
+        f"{settings.BACKEND_URL}/user/", json=user.dict(), headers=settings.auth_headers
+    )
+    logger.info(f"{res.status_code}-{register_data[b'user_id'].decode('utf-8')}")
