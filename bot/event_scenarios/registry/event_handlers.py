@@ -9,6 +9,8 @@ import bot.event_scenarios.msg_utils as utils
 import bot.event_scenarios.msg_reactions as reactions
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from .utils import Name, get_directions
+from bot.event_scenarios.auth import auth_headers
+
 
 settings = get_settings()
 redis_db = redis.Redis.from_url(settings.REDIS_DSN)
@@ -19,7 +21,7 @@ logger = getLogger(__name__)
 def on_mode_change(vk: VkApiMethod) -> None:
     """on 'register_mode' code bot sends messages to registrate"""
     users: list = requests.get(
-        f"{settings.BACKEND_URL}/spam/", headers=settings.auth_headers
+        f"{settings.BACKEND_URL}/spam/", headers=auth_headers
     ).json()
     ids = set()
     for user in users:
@@ -113,6 +115,6 @@ def on_about(vk: VkApiMethod, event: Event):
         social_web_id=register_data[b"user_id"].decode("utf-8"),
     )
     res = requests.post(
-        f"{settings.BACKEND_URL}/user/", json=user.dict(), headers=settings.auth_headers
+        f"{settings.BACKEND_URL}/user/", json=user.dict(), headers=auth_headers
     )
     logger.info(f"{res.status_code}-{register_data[b'user_id'].decode('utf-8')}")

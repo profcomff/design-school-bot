@@ -1,4 +1,3 @@
-import requests
 import redis
 import bot.schemas.models as schemas
 from vk_api.longpoll import Event
@@ -13,23 +12,6 @@ import re
 settings = get_settings()
 
 
-class RedisUser:
-    union_id: str
-    direction_id: int
-    first_name: str
-    middle_name: str
-    last_name: str
-    year: str
-    readme: str
-
-
-def redis_model_completed(model: dict[str, int | str]) -> bool:
-    for row in [*RedisUser.__dict__.keys(), "social_web_id"]:
-        if row not in model.keys():
-            return False
-    return True
-
-
 def process_spam(vk: VkApiMethod, event: Event, **kwargs):
     if event.text == reactions.Start.START_BUTTON:
         spam.on_mode_change(vk, event)
@@ -37,10 +19,10 @@ def process_spam(vk: VkApiMethod, event: Event, **kwargs):
         spam.on_start_message(vk, event, **kwargs)
 
 
-def process_registry(vk: VkApiMethod, event: Event, **kwargs):
+def process_registry(vk: VkApiMethod, event: Event):
     redis_db = redis.Redis.from_url(settings.REDIS_DSN)
     if event.text == "Начать":
-        registry.on_mode_change(vk)
+        registry.on_start_button(vk, event)
     if event.text == settings.REGISTRY_MODE:
         registry.on_mode_change(vk)
     elif event.text == reactions.Registry.START_BUTTON:
