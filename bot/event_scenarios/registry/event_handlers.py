@@ -94,7 +94,14 @@ def on_approve(vk: VkApiMethod, event: Event):
         redis_db.hset(event.user_id, "approved", "approved")
     if event.text == reactions.Registry.APPROVE_FALSE:
         utils.send_message(vk, event.user_id, message="Ладно, давай снова:")
-        redis_db.hdel(event.user_id, "name", "union_num", "year", "direction_id")
+        redis_db.hdel(event.user_id,
+                      "name",
+                      "union_num",
+                      "year",
+                      "direction_id",
+                      "registrated",
+                      "approved",
+                      )
         on_start_button(vk, event)
 
 
