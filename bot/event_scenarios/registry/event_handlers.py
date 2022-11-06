@@ -101,7 +101,7 @@ def on_about(vk: VkApiMethod, event: Event):
     redis_db.hset(name=event.user_id, key="registrated", value="registrated")
     # post user data to backend
     register_data = redis_db.hgetall(event.user_id)
-    first_name, last_name, middle_name = register_data[b"name"].decode("utf-8").split()
+    last_name, first_name, middle_name = register_data[b"name"].decode("utf-8").split()
     user = schemas.UserPost(
         union_id=register_data[b"union_num"].decode("utf-8"),
         direction_id=register_data[b"direction_id"].decode("utf-8"),
