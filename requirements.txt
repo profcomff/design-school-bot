@@ -1,0 +1,4 @@
+pydantic[dotenv]
+vk_api
+requests
+redis
