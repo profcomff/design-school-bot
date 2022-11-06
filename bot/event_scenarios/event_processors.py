@@ -27,7 +27,7 @@ def process_registry(vk: VkApiMethod, event: Event):
         registry.on_mode_change(vk)
     elif event.text == reactions.Registry.START_BUTTON:
         registry.on_start_button(vk, event)
-    elif re.match(r"([А-ЯЁ][а-яё]+[\-\s]?){3,}", event.text):
+    elif re.match(r"([А-ЯЁ][а-яё]+[\-\s]?){2,}", event.text):
         # username received
         registry.on_fio_ans(vk, event)
 
@@ -59,6 +59,12 @@ def process_registry(vk: VkApiMethod, event: Event):
     ):
         # user cv received
         registry.on_about(vk, event)
+    elif event.text != "Начать" and redis_db.hexists(event.user_id, 'registrated'):
+        registry.on_random_end(vk, event)
+    elif event.text != "Начать" and\
+            not redis_db.hexists(event.user_id, 'registrated') and\
+            not redis_db.hexists(event.user_id, 'start_button'):
+        registry.on_random_begin(vk, event)
 
 
 def process_workflow(vk: VkApiMethod, event: Event, **kwargs):

@@ -7,6 +7,8 @@ from .event_handlers import (
     on_start_button,
     on_direction_ans,
     on_about,
+    on_random_begin,
+    on_random_end,
 )
 from .utils import get_directions
 
@@ -21,4 +23,6 @@ __all__ = [
     "on_direction_ans",
     "get_directions",
     "on_about",
+    "on_random_begin",
+    "on_random_end",
 ]

@@ -6,7 +6,12 @@ class Name:
     def __init__(self, fio: str):
         self.success = False
         self.fio = fio.split()
-        if len(self.fio) == 3:
+        self.middle_name = '-'
+        if len(self.fio) == 2:
+            self.name = self.fio[1].capitalize()
+            self.last_name = self.fio[0].capitalize()
+            self.success = True
+        elif len(self.fio) == 3:
             self.name = self.fio[1].capitalize()
             self.last_name = self.fio[0].capitalize()
             self.middle_name = self.fio[2].capitalize()
