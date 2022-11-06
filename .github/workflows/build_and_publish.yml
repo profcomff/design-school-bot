@@ -83,9 +83,8 @@ jobs:
     runs-on: [self-hosted, Linux]
     environment:
       name: Production
-      url: https://api.design.school.profcomff.com/
     env:
-      CONTAITER_NAME: com_profcomff_api_design_school
+      CONTAITER_NAME: com_profcomff_bot_design_school
     permissions:
       packages: read
 
