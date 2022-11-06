@@ -1,16 +1,20 @@
 from bot.schemas.models import Directions
+from dataclasses import dataclass
 
 
+@dataclass
 class Start:
     START_BUTTON: str = "Начать"
 
 
+@dataclass
 class Spam:
     START_MESSAGE = "Привет!"
     START_BUTTON = "Хочу на ШЭ ЭМ"
     START_REPLY = "Мы добавили тебя в список"
 
 
+@dataclass
 class Registry:
     START_MESSAGE = """Привет, мы принесли тебе новость нереальной крутости!\n
     Сядь, а то упадёшь — РЕГИСТРАЦИЯ НА ШЭ ЭМ ОТКРЫТА!\n
