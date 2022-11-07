@@ -84,6 +84,20 @@ def on_year_ans(vk: VkApiMethod, event: Event) -> None:
     )
 
 
+def on_discard_direction(vk: VkApiMethod, event: Event):
+    kb = VkKeyboard(one_time=False, inline=True)
+
+    for i in range(len(directions)):
+        kb.add_button(directions[i].name)
+        if i + 1 < len(directions):
+            kb.add_line()
+    utils.send_message(
+        vk,
+        event.user_id,
+        message=dedent(reactions.Registry.DIRECTION_QUESTION),
+        keyboard=kb.get_keyboard(),
+    )
+
 def on_direction_ans(vk: VkApiMethod, event: Event):
     db_id = 1
     for d in directions:
@@ -111,7 +125,7 @@ def on_approve(vk: VkApiMethod, event: Event):
         redis_db.hdel(event.user_id,
                       "direction_id"
                       )
-        on_year_ans(vk, event)
+        on_discard_direction(vk, event)
 
 
 def on_about(vk: VkApiMethod, event: Event):
