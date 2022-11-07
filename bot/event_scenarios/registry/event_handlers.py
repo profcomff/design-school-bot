@@ -115,7 +115,7 @@ def on_approve(vk: VkApiMethod, event: Event):
 
 
 def on_about(vk: VkApiMethod, event: Event):
-    utils.send_message(vk, event.user_id, message=reactions.Registry.ON_CV_ANSWER)
+
     redis_db.hset(name=event.user_id, key="registrated", value="registrated")
     # post user data to backend
     register_data = redis_db.hgetall(event.user_id)
@@ -137,6 +137,18 @@ def on_about(vk: VkApiMethod, event: Event):
     res = requests.post(
         f"{settings.BACKEND_URL}/user/", json=user, headers=auth_headers
     )
+    if res.status_code == 200:
+        utils.send_message(vk, event.user_id, message=reactions.Registry.ON_CV_ANSWER)
+    elif res.status_code == 409:
+        utils.send_message(vk,
+                           event.user_id,
+                           message="Вы уже в базе данных. Для изменения данных обратитесь в поддержку"
+                           )
+    else:
+        utils.send_message(vk,
+                           event.user_id,
+                           message="Something went wrong"
+                           )
     logger.info(f"{res.status_code}-{register_data[b'social_web_id'].decode('utf-8')}")
 
 
