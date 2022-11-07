@@ -24,7 +24,13 @@ class Registry:
     YEAR_QUESTION = (
         "На каком курсе учишься? Напиши в формате “1” или “1м” (если ты магистр)"
     )
-    DIRECTION_QUESTION = """Выбери направление -- можно выбрать только одно, а изменить его в процессе Школы будет нельзя! Направления: Фото: графия https://vk.com/@she_em-fotografiya Контент: менеджмент https://vk.com/@she_em-kontent Дизайн: соцсетей https://vk.com/@she_em-aidentika Дизайн: айдентика https://vk.com/@she_em-dizain-socseti"""
+    DIRECTION_QUESTION = """Выбери направление -- можно выбрать только одно, а изменить его в процессе Школы будет нельзя! 
+    Направления: 
+    Фото: графия https://vk.com/@she_em-fotografiya 
+    Контент: менеджмент https://vk.com/@she_em-kontent 
+    Дизайн: соцсетей https://vk.com/@she_em-aidentika 
+    Дизайн: айдентика https://vk.com/@she_em-dizain-socseti
+    """
     APPROVE_QUESTION = "Это точно?"
     APPROVE_TRUE = "Да!"
     APPROVE_FALSE = "Нет"
