@@ -123,8 +123,8 @@ def on_about(vk: VkApiMethod, event: Event):
     if len(fio) == 3:
         middle_name = fio[2]
     elif len(fio) == 2:
-        middle_name = '-'
-    user = schemas.UserPost(
+        middle_name = ''
+    user = dict(
         union_id=register_data[b"union_num"].decode("utf-8"),
         direction_id=register_data[b"direction_id"].decode("utf-8"),
         first_name=fio[1],
@@ -135,7 +135,7 @@ def on_about(vk: VkApiMethod, event: Event):
         social_web_id=register_data[b"social_web_id"].decode("utf-8"),
     )
     res = requests.post(
-        f"{settings.BACKEND_URL}/user/", json=user.dict(), headers=auth_headers
+        f"{settings.BACKEND_URL}/user/", json=user, headers=auth_headers
     )
     logger.info(f"{res.status_code}-{register_data[b'social_web_id'].decode('utf-8')}")
 
