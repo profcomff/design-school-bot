@@ -106,6 +106,7 @@ jobs:
             --env WORKFLOW_MODE='${{ secrets.WORKFLOW_MODE }}' \
             --env SUMMARY_MODE='${{ secrets.SUMMARY_MODE }}' \
             --env REGISTRY_MODE='${{ secrets.REGISTRY_MODE }}' \
+            --env BACKEND_URL='${{ secrets.BACKEND_URL }}' \
             --env BACKEND_USER='${{ secrets.BACKEND_USER }}' \
             --env BACKEND_PASSWORD='${{ secrets.BACKEND_PASSWORD }}' \
             --name ${{ env.CONTAITER_NAME }} \
