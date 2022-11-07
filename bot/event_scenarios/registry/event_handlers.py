@@ -10,7 +10,7 @@ import bot.event_scenarios.msg_reactions as reactions
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from .utils import Name, get_directions
 from bot.event_scenarios.auth import auth_headers
-
+from textwrap import dedent
 
 settings = get_settings()
 redis_db = redis.Redis.from_url(settings.REDIS_DSN)
@@ -57,14 +57,14 @@ def on_start_button(vk: VkApiMethod, event: Event) -> None:
 def on_fio_ans(vk: VkApiMethod, event: Event):
     name = Name(event.text)
     if name.is_valid():
-        utils.send_message(vk, event.user_id, message=reactions.Registry.UNION_QUESTION)
+        utils.send_message(vk, event.user_id, message=dedent(reactions.Registry.UNION_QUESTION))
         redis_db.hset(name=event.user_id, key="name", value=event.text)
     else:
         utils.send_message(vk, event.user_id, message=reactions.Registry.ON_FAILURE)
 
 
 def on_union_ans(vk: VkApiMethod, event: Event) -> None:
-    utils.send_message(vk, event.user_id, message=reactions.Registry.YEAR_QUESTION)
+    utils.send_message(vk, event.user_id, message=dedent(reactions.Registry.YEAR_QUESTION))
     redis_db.hset(name=event.user_id, key="union_num", value=event.text)
 
 
@@ -79,7 +79,7 @@ def on_year_ans(vk: VkApiMethod, event: Event) -> None:
     utils.send_message(
         vk,
         event.user_id,
-        message=reactions.Registry.DIRECTION_QUESTION,
+        message=dedent(reactions.Registry.DIRECTION_QUESTION),
         keyboard=kb.get_keyboard(),
     )
 
@@ -104,7 +104,7 @@ def on_direction_ans(vk: VkApiMethod, event: Event):
 
 def on_approve(vk: VkApiMethod, event: Event):
     if event.text == reactions.Registry.APPROVE_TRUE:
-        utils.send_message(vk, event.user_id, message=reactions.Registry.ABOUT_QUESTION)
+        utils.send_message(vk, event.user_id, message=dedent(reactions.Registry.ABOUT_QUESTION))
         redis_db.hset(event.user_id, "approved", "approved")
     if event.text == reactions.Registry.APPROVE_FALSE:
         utils.send_message(vk, event.user_id, message="Ладно, давай снова:")
@@ -115,7 +115,7 @@ def on_approve(vk: VkApiMethod, event: Event):
 
 
 def on_about(vk: VkApiMethod, event: Event):
-    utils.send_message(vk, event.user_id, message=reactions.Registry.ON_CV_ANSWER)
+
     redis_db.hset(name=event.user_id, key="registrated", value="registrated")
     # post user data to backend
     register_data = redis_db.hgetall(event.user_id)
@@ -137,6 +137,18 @@ def on_about(vk: VkApiMethod, event: Event):
     res = requests.post(
         f"{settings.BACKEND_URL}/user/", json=user, headers=auth_headers
     )
+    if res.status_code == 200:
+        utils.send_message(vk, event.user_id, message=dedent(reactions.Registry.ON_CV_ANSWER))
+    elif res.status_code == 409:
+        utils.send_message(vk,
+                           event.user_id,
+                           message=dedent("Вы уже в базе данных. Для изменения данных обратитесь в поддержку")
+                           )
+    else:
+        utils.send_message(vk,
+                           event.user_id,
+                           message="Something went wrong"
+                           )
     logger.info(f"{res.status_code}-{register_data[b'social_web_id'].decode('utf-8')}")
 
 
