@@ -28,8 +28,8 @@ class Registry:
     Направления: 
     Фото: графия https://vk.com/@she_em-fotografiya 
     Контент: менеджмент https://vk.com/@she_em-kontent 
-    Дизайн: соцсетей https://vk.com/@she_em-aidentika 
-    Дизайн: айдентика https://vk.com/@she_em-dizain-socseti
+    Дизайн: соцсети https://vk.com/@she_em-dizain-socseti
+    Дизайн: айдентика https://vk.com/@she_em-aidentika 
     """
     APPROVE_QUESTION = "Это точно?"
     APPROVE_TRUE = "Да!"
