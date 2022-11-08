@@ -15,7 +15,7 @@ settings = get_settings()
 
 
 def process_event(vk: VkApiMethod, event: Event, **kwargs):
-    if event.type == VkEventType.MESSAGE_NEW and event.from_user:
+    if event.type == VkEventType.MESSAGE_NEW and event.from_user and not event.from_me:
         logger.info(f"processing message from {event.user_id}: {event.text}")
         if change_mode(event.text):
             utils.send_message(
