@@ -29,7 +29,7 @@ def on_mode_change(vk: VkApiMethod) -> None:
     ).json()
     ids = set()
     for user in users:
-        ids.add(int(user["social_web_id"]))
+        ids.add(int(user.get("social_web_id")))
     for user_id in ids:
         utils.on_start_message_button(
             vk,
