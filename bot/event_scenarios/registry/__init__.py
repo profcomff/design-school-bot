@@ -9,6 +9,7 @@ from .event_handlers import (
     on_about,
     on_random_begin,
     on_random_end,
+    on_spam_message,
 )
 from .utils import get_directions
 
@@ -25,4 +26,5 @@ __all__ = [
     "on_about",
     "on_random_begin",
     "on_random_end",
+    "on_spam_message",
 ]

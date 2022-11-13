@@ -183,3 +183,14 @@ def on_random_end(vk: VkApiMethod, event: Event):
         event.user_id,
         message="Ты уже зарегистрировался, мы сообщим о начале учебы!",
     )
+
+
+def on_spam_message(vk: VkApiMethod, message):
+    res = requests.get(f"{settings.BACKEND_URL}/user/", headers=auth_headers)
+    users = res.json()
+    for user in users:
+        utils.send_message(
+            vk,
+            int(user["social_web_id"]),
+            message=message,
+        )
