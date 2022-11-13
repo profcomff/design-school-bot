@@ -26,7 +26,8 @@ def process_registry(vk: VkApiMethod, event: Event):
         registry.on_start_button(vk, event)
     if event.text == settings.REGISTRY_MODE:
         registry.on_mode_change(vk)
-    elif (event.text.split()[0] == settings.REGISTRY_MODE and
+    elif (len(event.text.split()) >= 2 and
+          event.text.split()[0] == settings.REGISTRY_MODE and
           event.text.split()[1] == 'spam_message'
     ):
         message = event.text.split(' spam_message ')[-1]
