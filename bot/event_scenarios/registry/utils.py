@@ -1,12 +1,8 @@
-from bot.schemas.models import Year
-from bot.event_scenarios.msg_reactions import Registry
-
-
 class Name:
     def __init__(self, fio: str):
         self.success = False
         self.fio = fio.split()
-        self.middle_name = '-'
+        self.middle_name = "-"
         if len(self.fio) == 2:
             self.name = self.fio[1].capitalize()
             self.last_name = self.fio[0].capitalize()

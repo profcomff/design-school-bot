@@ -6,8 +6,9 @@ from bot.config import get_settings
 import bot.event_scenarios.msg_reactions as reactions
 import bot.event_scenarios.spam as spam
 import bot.event_scenarios.registry as registry
+import bot.event_scenarios.workflow as workflow
+import bot.event_scenarios.summary as summary
 import re
-
 
 settings = get_settings()
 
@@ -25,6 +26,13 @@ def process_registry(vk: VkApiMethod, event: Event):
         registry.on_start_button(vk, event)
     if event.text == settings.REGISTRY_MODE:
         registry.on_mode_change(vk)
+    elif (len(event.text.split()) >= 2 and
+          event.text.split()[0] == settings.REGISTRY_MODE and
+          event.text.split()[1] == 'spam_message'
+    ):
+        message = event.text.split(' spam_message ')[-1]
+        if settings.REGISTRY_MODE not in message:
+            registry.on_spam_message(vk, message)
     elif event.text == reactions.Registry.START_BUTTON:
         registry.on_start_button(vk, event)
     elif re.match(r"([А-ЯЁ][а-яё]+[\-\s]?){2,}", event.text):
@@ -55,21 +63,49 @@ def process_registry(vk: VkApiMethod, event: Event):
         registry.on_approve(vk, event)
 
     elif redis_db.hget(event.user_id, "approved") and not redis_db.hexists(
-        event.user_id, "registrated"
+            event.user_id, "registrated"
     ):
         # user cv received
         registry.on_about(vk, event)
-    elif event.text != "Начать" and redis_db.hexists(event.user_id, 'registrated'):
+    elif event.text != "Начать" and redis_db.hexists(event.user_id, "registrated"):
         registry.on_random_end(vk, event)
-    elif event.text != "Начать" and\
-            not redis_db.hexists(event.user_id, 'registrated') and\
-            not redis_db.hexists(event.user_id, 'start_button'):
+    elif (
+            event.text != "Начать"
+            and not redis_db.hexists(event.user_id, "registrated")
+            and not redis_db.hexists(event.user_id, "start_button")
+    ):
         registry.on_random_begin(vk, event)
 
 
-def process_workflow(vk: VkApiMethod, event: Event, **kwargs):
-    pass
+def process_workflow(vk: VkApiMethod, event: Event):
+    redis_db = redis.Redis.from_url(settings.REDIS_DSN)
+    if event.text == "Начать" or event.text == reactions.Registry.START_BUTTON:
+        workflow.on_registry_expiry(vk, event)
+    elif event.text == settings.WORKFLOW_MODE:
+        workflow.on_mode_change(vk)
+    elif event.text == reactions.Workflow.CONFIRM_BUTTON:
+        workflow.on_start_button(vk, event)
+    elif event.text and \
+            redis_db.hexists(event.user_id, "workflow") and \
+            redis_db.hexists(event.user_id, "workflow_type") and \
+            redis_db.hget(event.user_id, "workflow_type").decode('utf-8') == 'none':
+        workflow.on_none_request_ans(vk, event)
+    elif event.text and \
+            redis_db.hexists(event.user_id, "workflow") and \
+            redis_db.hexists(event.user_id, "workflow_type") and \
+            redis_db.hget(event.user_id, "workflow_type").decode('utf-8') == 'text':
+        workflow.on_text_request_ans(vk, event)
+    elif event.text and \
+            redis_db.hexists(event.user_id, "workflow") and \
+            redis_db.hexists(event.user_id, "workflow_type") and \
+            redis_db.hget(event.user_id, "workflow_type").decode('utf-8') == 'file':
+        workflow.on_none_request_ans(vk, event)
+    elif event.text and \
+            redis_db.hexists(event.user_id, "workflow") and \
+            redis_db.hexists(event.user_id, "workflow_type") and \
+            redis_db.hget(event.user_id, "workflow_type").decode('utf-8') == 'video':
+        workflow.on_none_request_ans(vk, event)
 
 
-def process_summary(vk: VkApiMethod, event: Event, **kwargs):
+def process_summary(vk: VkApiMethod, event: Event):
     pass
