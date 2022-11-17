@@ -14,8 +14,8 @@ logging.basicConfig(
 if __name__ == "__main__":
     logger = getLogger(__name__)
     while True:
-        longpoll.update_longpoll_server()
         try:
+            longpoll.update_longpoll_server()
             for event in longpoll.check():
                 process_event(vk, event)
         except Exception as e:
