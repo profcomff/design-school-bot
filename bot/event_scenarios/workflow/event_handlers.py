@@ -5,12 +5,13 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from bot.config import get_settings
 import bot.event_scenarios.msg_utils as utils
 from bot.event_scenarios.auth import auth_headers
-from .utils import get_user_db_id
+from .utils import get_user_db_id, get_video_message
 import redis
 import requests
 from textwrap import dedent
+from logging import getLogger
 
-
+logger = getLogger(__name__)
 settings = get_settings()
 redis_db = redis.Redis.from_url(settings.REDIS_DSN)
 
@@ -21,6 +22,8 @@ def on_registry_expiry(vk: VkApiMethod, event: Event):
 
 def on_mode_change(vk: VkApiMethod):
     res = requests.get(f"{settings.BACKEND_URL}/user/", headers=auth_headers)
+    if res.status_code != 200:
+        logger.critical(f"Unable to get users: {res.status_code}")
     users = res.json()
     kb = VkKeyboard(one_time=True, inline=False)
     kb.add_button(reactions.Workflow.CONFIRM_BUTTON, color=VkKeyboardColor.POSITIVE)
@@ -34,48 +37,53 @@ def on_mode_change(vk: VkApiMethod):
 
 
 def on_start_button(vk: VkApiMethod, event: Event):
-    redis_db.hdel(event.user_id,
-                  "workflow",
-                  "workflow_type")
+    redis_db.hdel(event.user_id, "workflow", "workflow_type")
     redis_db.hset(event.user_id, "workflow", "started")
+    on_none_request_ans(vk, event)
+
+
+def send_video_task(vk: VkApiMethod, event: Event):
     db_user_id = get_user_db_id(event.user_id)
-    video = requests.get(
-        f"{settings.BACKEND_URL}/uservideo/{db_user_id}", headers=auth_headers
-    ).json()
-    link = video["link"]
-    desc = video["request"]
-    utils.send_message(vk, event.user_id, message=f"{link}\n{desc}")
-    request_type = video['request_type']
-    if request_type is None:
-        redis_db.hset(event.user_id, "workflow_type", 'none')
+    kb = VkKeyboard(one_time=False, inline=False)
+    kb.add_button(reactions.Workflow.NEXT_VIDEO_BUTTON, color=VkKeyboardColor.POSITIVE)
+    video = get_video_message(db_user_id)
+    utils.send_message(
+        vk, event.user_id, message=video["body"], keyboard=kb.get_keyboard()
+    )
+    ans_type = video["ans_type"]
+    if ans_type is None:
+        redis_db.hset(event.user_id, "workflow_type", "none")
     else:
-        redis_db.hset(event.user_id, "workflow_type", request_type)
+        redis_db.hset(event.user_id, "workflow_type", ans_type)
     redis_db.hset(event.user_id, "workflow", "on workflow")
 
 
 def on_none_request_ans(vk: VkApiMethod, event: Event):
-    utils.send_message(vk, event.user_id, message='null req')
-    db_user_id = get_user_db_id(event.user_id)
-    video = requests.get(
-        f"{settings.BACKEND_URL}/uservideo/{db_user_id}", headers=auth_headers
-    ).json()
-    request_type = video['request_type']
-    if request_type is None:
-        redis_db.hset(event.user_id, "workflow_type", 'none')
-    else:
-        redis_db.hset(event.user_id, "workflow_type", request_type)
-    link = video["link"]
-    desc = video["request"]
-    utils.send_message(vk, event.user_id, message=f"{link}\n{desc}")
+    send_video_task(vk, event)
 
 
-def on_text_request_ans(vk: VkApiMethod, event: Event):
-    utils.send_message(vk, event.user_id, message='text req')
+def on_approve(vk: VkApiMethod, event: Event):
+    if event.text == reactions.Workflow.APPROVE_TRUE:
+        redis_db.hset(event.user_id, "workflow", "approved")
+        utils.send_message(
+            vk, event.user_id, message=reactions.Workflow.ON_APPROVE_TRUE_ANS
+        )
+    if event.text == reactions.Workflow.APPROVE_FALSE:
+        redis_db.hset(event.user_id, "workflow", "on workflow")
+        utils.send_message(
+            vk, event.user_id, message=reactions.Workflow.ON_APPROVE_FALSE_ANS
+        )
 
 
-def on_video_request_ans(vk: VkApiMethod, event: Event):
-    utils.send_message(vk, event.user_id, message='video req')
-
-
-def on_file_request_ans(vk: VkApiMethod, event: Event):
-    utils.send_message(vk, event.user_id, message='video req')
+def on_solution_received(vk: VkApiMethod, event: Event):
+    redis_db.hset(event.user_id, "workflow", "solved")
+    kb = VkKeyboard(one_time=False, inline=True)
+    kb.add_button(reactions.Workflow.APPROVE_TRUE, color=VkKeyboardColor.POSITIVE)
+    kb.add_line()
+    kb.add_button(reactions.Workflow.APPROVE_FALSE, color=VkKeyboardColor.NEGATIVE)
+    utils.send_message(
+        vk,
+        event.user_id,
+        message=reactions.Workflow.APPROVE_QUESTION,
+        keyboard=kb.get_keyboard(),
+    )

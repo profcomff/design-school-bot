@@ -19,4 +19,4 @@ if __name__ == "__main__":
             for event in longpoll.check():
                 process_event(vk, event)
         except Exception as e:
-            logger.critical(repr(e))
+            logger.critical(e)

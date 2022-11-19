@@ -26,11 +26,12 @@ def process_registry(vk: VkApiMethod, event: Event):
         registry.on_start_button(vk, event)
     if event.text == settings.REGISTRY_MODE:
         registry.on_mode_change(vk)
-    elif (len(event.text.split()) >= 2 and
-          event.text.split()[0] == settings.REGISTRY_MODE and
-          event.text.split()[1] == 'spam_message'
+    elif (
+        len(event.text.split()) >= 2
+        and event.text.split()[0] == settings.REGISTRY_MODE
+        and event.text.split()[1] == "spam_message"
     ):
-        message = event.text.split(' spam_message ')[-1]
+        message = event.text.split(" spam_message ")[-1]
         if settings.REGISTRY_MODE not in message:
             registry.on_spam_message(vk, message)
     elif event.text == reactions.Registry.START_BUTTON:
@@ -63,16 +64,16 @@ def process_registry(vk: VkApiMethod, event: Event):
         registry.on_approve(vk, event)
 
     elif redis_db.hget(event.user_id, "approved") and not redis_db.hexists(
-            event.user_id, "registrated"
+        event.user_id, "registrated"
     ):
         # user cv received
         registry.on_about(vk, event)
     elif event.text != "Начать" and redis_db.hexists(event.user_id, "registrated"):
         registry.on_random_end(vk, event)
     elif (
-            event.text != "Начать"
-            and not redis_db.hexists(event.user_id, "registrated")
-            and not redis_db.hexists(event.user_id, "start_button")
+        event.text != "Начать"
+        and not redis_db.hexists(event.user_id, "registrated")
+        and not redis_db.hexists(event.user_id, "start_button")
     ):
         registry.on_random_begin(vk, event)
 
@@ -85,26 +86,36 @@ def process_workflow(vk: VkApiMethod, event: Event):
         workflow.on_mode_change(vk)
     elif event.text == reactions.Workflow.CONFIRM_BUTTON:
         workflow.on_start_button(vk, event)
-    elif event.text and \
-            redis_db.hexists(event.user_id, "workflow") and \
-            redis_db.hexists(event.user_id, "workflow_type") and \
-            redis_db.hget(event.user_id, "workflow_type").decode('utf-8') == 'none':
+    elif (
+        redis_db.hexists(event.user_id, "workflow")
+        and redis_db.hexists(event.user_id, "workflow_type")
+        and redis_db.hget(event.user_id, "workflow_type").decode("utf-8") == "none"
+        and event.text == reactions.Workflow.NEXT_VIDEO_BUTTON
+    ):
         workflow.on_none_request_ans(vk, event)
-    elif event.text and \
-            redis_db.hexists(event.user_id, "workflow") and \
-            redis_db.hexists(event.user_id, "workflow_type") and \
-            redis_db.hget(event.user_id, "workflow_type").decode('utf-8') == 'text':
-        workflow.on_text_request_ans(vk, event)
-    elif event.text and \
-            redis_db.hexists(event.user_id, "workflow") and \
-            redis_db.hexists(event.user_id, "workflow_type") and \
-            redis_db.hget(event.user_id, "workflow_type").decode('utf-8') == 'file':
-        workflow.on_none_request_ans(vk, event)
-    elif event.text and \
-            redis_db.hexists(event.user_id, "workflow") and \
-            redis_db.hexists(event.user_id, "workflow_type") and \
-            redis_db.hget(event.user_id, "workflow_type").decode('utf-8') == 'video':
-        workflow.on_none_request_ans(vk, event)
+    elif (
+        event.text
+        and redis_db.hexists(event.user_id, "workflow")
+        and redis_db.hget(event.user_id, "workflow").decode("utf-8") == "on workflow"
+    ):
+        workflow.on_solution_received(vk, event)
+    elif (
+        event.text
+        and event.text != reactions.Workflow.NEXT_VIDEO_BUTTON
+        and redis_db.hexists(event.user_id, "workflow")
+        and redis_db.hget(event.user_id, "workflow").decode("utf-8") == "solved"
+    ):
+        workflow.on_approve(vk, event)
+    elif (
+        event.text == reactions.Workflow.NEXT_VIDEO_BUTTON
+        and redis_db.hexists(event.user_id, "workflow")
+        and redis_db.hget(event.user_id, "workflow").decode("utf-8") == "approved"
+    ):
+        workflow.on_start_button(vk, event)
+    if event.attachments:
+        title = event.message.attachments[0]["doc"]["title"]
+        url = event.message.attachments[0]["doc"]["url"]
+        print(title, url)
 
 
 def process_summary(vk: VkApiMethod, event: Event):
