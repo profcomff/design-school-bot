@@ -5,7 +5,7 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from bot.config import get_settings
 import bot.event_scenarios.msg_utils as utils
 from bot.event_scenarios.auth import auth_headers
-from .utils import get_user_db_id, get_video_message
+from .utils import get_user_db_id, get_video_message, post_solution_to_api
 import redis
 import requests
 from textwrap import dedent
@@ -51,6 +51,8 @@ def send_video_task(vk: VkApiMethod, event: Event):
         vk, event.user_id, message=video["body"], keyboard=kb.get_keyboard()
     )
     ans_type = video["ans_type"]
+    redis_db.hset(event.user_id, "video_id", video['id'])
+    redis_db.hset(event.user_id, "video_type", ans_type)
     if ans_type is None:
         redis_db.hset(event.user_id, "workflow_type", "none")
     else:
@@ -65,6 +67,7 @@ def on_none_request_ans(vk: VkApiMethod, event: Event):
 def on_approve(vk: VkApiMethod, event: Event):
     if event.text == reactions.Workflow.APPROVE_TRUE:
         redis_db.hset(event.user_id, "workflow", "approved")
+        commit_solution(event)
         utils.send_message(
             vk, event.user_id, message=reactions.Workflow.ON_APPROVE_TRUE_ANS
         )
@@ -87,3 +90,18 @@ def on_solution_received(vk: VkApiMethod, event: Event):
         message=reactions.Workflow.APPROVE_QUESTION,
         keyboard=kb.get_keyboard(),
     )
+
+
+def commit_solution(event: Event):
+    video_id = int(redis_db.hget(event.user_id, "video_id").decode('utf-8'))
+    video_type = redis_db.hget(event.user_id, "video_type").decode('utf-8')
+    db_user_id = get_user_db_id(event.user_id)
+    body = {
+        'content': event.text,
+    }
+    api_status = post_solution_to_api(video_id,
+                         db_user_id,
+                         type=video_type,
+                         body=body
+                         )
+    logger.info(f"Solution commit from <{db_user_id}: {video_id} {video_type}> status: {api_status}")

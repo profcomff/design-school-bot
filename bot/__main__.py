@@ -20,3 +20,4 @@ if __name__ == "__main__":
                 process_event(vk, event)
         except Exception as e:
             logger.critical(e)
+            raise e
