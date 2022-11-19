@@ -33,7 +33,9 @@ def get_video_message(db_user_id: int) -> dict[str, str | None]:
     }
 
 
-def post_solution_to_api(video_id: int, db_user_id: int, type: str = "none", body: dict = None) -> int:
+def post_solution_to_api(
+    video_id: int, db_user_id: int, type: str = "none", body: dict = None
+) -> int:
     logger.info(f"post to API: {video_id}, {db_user_id}, {type}")
     if not body:
         res = requests.post(
@@ -43,6 +45,7 @@ def post_solution_to_api(video_id: int, db_user_id: int, type: str = "none", bod
     else:
         res = requests.post(
             f"{settings.BACKEND_URL}/video/{video_id}/response/{db_user_id}/{type}",
-            headers=auth_headers, json=body
+            headers=auth_headers,
+            json=body,
         )
     return res.status_code

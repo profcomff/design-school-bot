@@ -51,7 +51,7 @@ def send_video_task(vk: VkApiMethod, event: Event):
         vk, event.user_id, message=video["body"], keyboard=kb.get_keyboard()
     )
     ans_type = video["ans_type"]
-    redis_db.hset(event.user_id, "video_id", video['id'])
+    redis_db.hset(event.user_id, "video_id", video["id"])
     redis_db.hset(event.user_id, "video_type", ans_type)
     if ans_type is None:
         redis_db.hset(event.user_id, "workflow_type", "none")
@@ -93,15 +93,13 @@ def on_solution_received(vk: VkApiMethod, event: Event):
 
 
 def commit_solution(event: Event):
-    video_id = int(redis_db.hget(event.user_id, "video_id").decode('utf-8'))
-    video_type = redis_db.hget(event.user_id, "video_type").decode('utf-8')
+    video_id = int(redis_db.hget(event.user_id, "video_id").decode("utf-8"))
+    video_type = redis_db.hget(event.user_id, "video_type").decode("utf-8")
     db_user_id = get_user_db_id(event.user_id)
     body = {
-        'content': event.text,
+        "content": event.text,
     }
-    api_status = post_solution_to_api(video_id,
-                         db_user_id,
-                         type=video_type,
-                         body=body
-                         )
-    logger.info(f"Solution commit from <{db_user_id}: {video_id} {video_type}> status: {api_status}")
+    api_status = post_solution_to_api(video_id, db_user_id, type=video_type, body=body)
+    logger.info(
+        f"Solution commit from <{db_user_id}: {video_id} {video_type}> status: {api_status}"
+    )
