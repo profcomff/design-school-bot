@@ -3,6 +3,7 @@ from bot.config import get_settings
 from bot.event_scenarios.auth import auth_headers
 from logging import getLogger
 from bot.schemas.models import VideoGet
+import bot.event_scenarios.msg_reactions as reactions
 from redis.client import Redis
 
 settings = get_settings()
@@ -21,9 +22,16 @@ def get_user_db_id(social_web_id: int) -> int:
 
 
 def get_video_message(db_user_id: int) -> dict[str, str | None]:
-    video = requests.get(
+    res = requests.get(
         f"{settings.BACKEND_URL}/uservideo/{db_user_id}", headers=auth_headers
-    ).json()
+    )
+    if res.status_code == 403 and res.text == "Forbidden, Course ended":
+        return {
+            "body": reactions.Workflow.COURSE_ENDED,
+            "ans_type": "end_course",
+            "id": 0,
+        }
+    video = res.json()
     link = video["link"]
     desc = video["request"]
     return {

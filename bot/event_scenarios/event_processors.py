@@ -94,6 +94,13 @@ def process_workflow(vk: VkApiMethod, event: Event):
     ):
         workflow.on_none_request_ans(vk, event)
     elif (
+        redis_db.hexists(event.user_id, "workflow")
+        and redis_db.hexists(event.user_id, "workflow_type")
+        and redis_db.hget(event.user_id, "workflow_type").decode("utf-8") == "end_course"
+        and event.text == reactions.Workflow.COOL_BUTTON
+    ):
+        workflow.on_end_course(vk, event)
+    elif (
         event.text
         and redis_db.hexists(event.user_id, "workflow")
         and redis_db.hget(event.user_id, "workflow").decode("utf-8") == "on workflow"
@@ -112,10 +119,6 @@ def process_workflow(vk: VkApiMethod, event: Event):
         and redis_db.hget(event.user_id, "workflow").decode("utf-8") == "approved"
     ):
         workflow.on_start_button(vk, event)
-    if event.attachments:
-        title = event.message.attachments[0]["doc"]["title"]
-        url = event.message.attachments[0]["doc"]["url"]
-        print(title, url)
 
 
 def process_summary(vk: VkApiMethod, event: Event):

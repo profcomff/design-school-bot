@@ -44,13 +44,19 @@ def on_start_button(vk: VkApiMethod, event: Event):
 
 def send_video_task(vk: VkApiMethod, event: Event):
     db_user_id = get_user_db_id(event.user_id)
-    kb = VkKeyboard(one_time=False, inline=False)
-    kb.add_button(reactions.Workflow.NEXT_VIDEO_BUTTON, color=VkKeyboardColor.POSITIVE)
+
     video = get_video_message(db_user_id)
-    utils.send_message(
-        vk, event.user_id, message=video["body"], keyboard=kb.get_keyboard()
-    )
     ans_type = video["ans_type"]
+    if ans_type == "end_course":
+        kb = VkKeyboard(one_time=False, inline=True)
+        kb.add_button(reactions.Workflow.COOL_BUTTON, color=VkKeyboardColor.POSITIVE)
+        utils.send_message(vk, event.user_id, message=video["body"],)
+    else:
+        kb = VkKeyboard(one_time=False, inline=False)
+        kb.add_button(reactions.Workflow.NEXT_VIDEO_BUTTON, color=VkKeyboardColor.POSITIVE)
+        utils.send_message(
+            vk, event.user_id, message=video["body"], keyboard=kb.get_keyboard()
+        )
     redis_db.hset(event.user_id, "video_id", video["id"])
     redis_db.hset(event.user_id, "video_type", ans_type)
     if ans_type is None:
@@ -90,6 +96,9 @@ def on_solution_received(vk: VkApiMethod, event: Event):
         message=reactions.Workflow.APPROVE_QUESTION,
         keyboard=kb.get_keyboard(),
     )
+
+def on_end_course(vk: VkApiMethod, event: Event):
+    pass
 
 
 def commit_solution(event: Event):

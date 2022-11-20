@@ -5,6 +5,7 @@ from .event_handlers import (
     on_none_request_ans,
     on_solution_received,
     on_approve,
+    on_end_course,
 )
 
 __all__ = [
@@ -13,4 +14,6 @@ __all__ = [
     "on_mode_change",
     "on_approve",
     "on_solution_received",
+    "on_end_course",
+    "on_none_request_ans",
 ]
