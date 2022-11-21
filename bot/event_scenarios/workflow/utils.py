@@ -25,7 +25,7 @@ def get_video_message(db_user_id: int) -> dict[str, str | None]:
     res = requests.get(
         f"{settings.BACKEND_URL}/uservideo/{db_user_id}", headers=auth_headers
     )
-    if res.status_code == 403 and res.text == "Forbidden, Course ended":
+    if res.status_code == 200 and res.text == "Course ended":
         return {
             "body": reactions.Workflow.COURSE_ENDED,
             "ans_type": "end_course",
@@ -51,9 +51,13 @@ def post_solution_to_api(
             headers=auth_headers,
         )
     else:
+        if type == "file":
+            type = "text"
+
         res = requests.post(
             f"{settings.BACKEND_URL}/video/{video_id}/response/{db_user_id}/{type}",
             headers=auth_headers,
             json=body,
         )
+    print(res.content)
     return res.status_code
