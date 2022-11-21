@@ -73,7 +73,7 @@ def post_solution_to_api(
         )
     else:
         if type == "file":
-            type = "text"
+            type = "video"
 
         res = requests.post(
             f"{settings.BACKEND_URL}/video/{video_id}/response/{db_user_id}/{type}",
