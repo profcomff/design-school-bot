@@ -87,8 +87,7 @@ def on_approve(vk: VkApiMethod, event: Event):
             utils.send_message(
                 vk,
                 event.user_id,
-                message=f"Ошибка на стороне сервера: {api_res[1]}\n Возможно, ссылка не на google drive или нет "
-                        f"публичного доступа")
+                message=dedent("Ошибка. Возможно, ссылка не на google drive или нет публичного доступа"))
         kb = VkKeyboard(one_time=False, inline=True)
         kb.add_button(
             reactions.Workflow.NEXT_VIDEO_BUTTON, color=VkKeyboardColor.POSITIVE
