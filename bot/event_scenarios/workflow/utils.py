@@ -42,18 +42,20 @@ def get_video_message(db_user_id: int) -> dict[str, str | None]:
     }
 
 
-def post_until_success(retries=5, timeout_ms: float = 100, fail_code: int = 500):
+def post_until_success(retries=5, timeout_ms: float = 500, fail_code: int = 500):
     def decorator(func):
         def wrapper(*args, **kwargs):
             attempt = 0
+            curr_timeout_ms = timeout_ms
             while attempt < retries:
                 code = func(*args, **kwargs)
                 if code != fail_code:
                     return code
                 else:
                     logger.info(f"Retrying... {attempt}")
-                    time.sleep(timeout_ms / 1000)
+                    time.sleep(curr_timeout_ms / 1000)
                     attempt += 1
+                    curr_timeout_ms *= 2
             return code
         return wrapper
     return decorator
