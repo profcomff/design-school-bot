@@ -123,7 +123,8 @@ def on_solution_received(vk: VkApiMethod, event: Event):
 
 def on_end_course(vk: VkApiMethod, event: Event):
     redis_db.hset(event.user_id, "workflow_type", "end")
-    utils.send_message(vk, event.user_id, message=reactions.Workflow.ON_END_COURSE)
+    direction_id = int(redis_db.hgetall(event.user_id)[b"direction_id"].decode("utf-8"))
+    utils.send_message(vk, event.user_id, message=reactions.Workflow.end_course_message(direction_id))
 
 
 def on_random_message(vk: VkApiMethod, event: Event):
