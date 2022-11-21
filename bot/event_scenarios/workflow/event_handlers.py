@@ -47,6 +47,7 @@ def send_video_task(vk: VkApiMethod, event: Event):
     video = get_video_message(db_user_id)
     ans_type = video["ans_type"]
     if ans_type == "end_course":
+        redis_db.hset(event.user_id, "workflow_type", ans_type)
         kb = VkKeyboard(one_time=False, inline=True)
         kb.add_button(reactions.Workflow.COOL_BUTTON, color=VkKeyboardColor.POSITIVE)
         utils.send_message(
@@ -81,7 +82,13 @@ def on_none_request_ans(vk: VkApiMethod, event: Event):
 def on_approve(vk: VkApiMethod, event: Event):
     if event.text == reactions.Workflow.APPROVE_TRUE:
         redis_db.hset(event.user_id, "workflow", "approved")
-        commit_solution(event)
+        api_res = commit_solution(event)
+        if api_res[0] != 200:
+            utils.send_message(
+                vk,
+                event.user_id,
+                message=f"Ошибка на стороне сервера: {api_res[1]}\n Возможно, ссылка не на google drive или нет "
+                        f"публичного доступа")
         kb = VkKeyboard(one_time=False, inline=True)
         kb.add_button(
             reactions.Workflow.NEXT_VIDEO_BUTTON, color=VkKeyboardColor.POSITIVE
@@ -136,5 +143,6 @@ def commit_solution(event: Event):
         redis_db.hdel(event.user_id, "content")
     api_status = post_solution_to_api(video_id, db_user_id, type=video_type, body=body)
     logger.info(
-        f"Solution commit from <{db_user_id}: {video_id} {video_type}> status: {api_status}"
+        f"Solution commit from <{db_user_id}: {video_id} {video_type}> status: {api_status[0]}"
     )
+    return api_status

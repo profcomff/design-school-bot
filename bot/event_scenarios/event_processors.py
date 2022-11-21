@@ -82,6 +82,10 @@ def process_workflow(vk: VkApiMethod, event: Event):
     redis_db = redis.Redis.from_url(settings.REDIS_DSN)
     if event.text == settings.WORKFLOW_MODE:
         return None
+    elif event.text == f"{settings.WORKFLOW_MODE} send_message":
+        workflow.on_mode_change(vk)
+    elif event.text == reactions.Workflow.CONFIRM_BUTTON:
+        workflow.on_start_button(vk, event)
     elif (
         event.text
         and redis_db.hexists(event.user_id, "workflow_type")
@@ -90,10 +94,8 @@ def process_workflow(vk: VkApiMethod, event: Event):
         workflow.on_random_message(vk, event)
     elif event.text == "Начать" or event.text == reactions.Registry.START_BUTTON:
         workflow.on_registry_expiry(vk, event)
-    elif event.text == f"{settings.WORKFLOW_MODE} send_message":
-        workflow.on_mode_change(vk)
-    elif event.text == reactions.Workflow.CONFIRM_BUTTON:
-        workflow.on_start_button(vk, event)
+
+
     elif (
         redis_db.hexists(event.user_id, "workflow")
         and redis_db.hexists(event.user_id, "workflow_type")
@@ -105,7 +107,7 @@ def process_workflow(vk: VkApiMethod, event: Event):
         redis_db.hexists(event.user_id, "workflow")
         and redis_db.hexists(event.user_id, "workflow_type")
         and redis_db.hget(event.user_id, "workflow_type").decode("utf-8")
-        == "end"
+        == "end_course"
         and event.text == reactions.Workflow.COOL_BUTTON
     ):
         workflow.on_end_course(vk, event)

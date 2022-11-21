@@ -43,7 +43,7 @@ def get_video_message(db_user_id: int) -> dict[str, str | None]:
 
 def post_solution_to_api(
     video_id: int, db_user_id: int, type: str = "none", body: dict = None
-) -> int:
+) -> tuple:
     logger.info(f"post to API: {video_id}, {db_user_id}, {type}")
     if not body:
         res = requests.post(
@@ -59,5 +59,4 @@ def post_solution_to_api(
             headers=auth_headers,
             json=body,
         )
-    print(res.content)
-    return res.status_code
+    return res.status_code, res.content
