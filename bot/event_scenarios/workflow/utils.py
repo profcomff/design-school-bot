@@ -2,12 +2,13 @@ import requests
 from bot.config import get_settings
 from bot.event_scenarios.auth import auth_headers
 from logging import getLogger
-from bot.schemas.models import VideoGet
 import bot.event_scenarios.msg_reactions as reactions
-from redis.client import Redis
+import time
 
 settings = get_settings()
 logger = getLogger(__name__)
+MAX_RETRIES = 5
+retries = 0
 
 
 def get_user_db_id(social_web_id: int) -> int:
@@ -41,9 +42,29 @@ def get_video_message(db_user_id: int) -> dict[str, str | None]:
     }
 
 
+def post_until_success(retries=5, timeout_ms: float = 500, fail_code: int = 500):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            attempt = 0
+            curr_timeout_ms = timeout_ms
+            while attempt < retries:
+                code = func(*args, **kwargs)
+                if code != fail_code:
+                    return code
+                else:
+                    logger.info(f"Retrying... {attempt}")
+                    time.sleep(curr_timeout_ms / 1000)
+                    attempt += 1
+                    curr_timeout_ms *= 2
+            return code
+        return wrapper
+    return decorator
+
+
+@post_until_success()
 def post_solution_to_api(
-    video_id: int, db_user_id: int, type: str = "none", body: dict = None
-) -> tuple:
+        video_id: int, db_user_id: int, type: str = "none", body: dict = None
+) -> int:
     logger.info(f"post to API: {video_id}, {db_user_id}, {type}")
     if not body:
         res = requests.post(
@@ -59,4 +80,4 @@ def post_solution_to_api(
             headers=auth_headers,
             json=body,
         )
-    return res.status_code, res.content
+    return res.status_code

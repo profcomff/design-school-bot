@@ -83,12 +83,11 @@ def on_approve(vk: VkApiMethod, event: Event):
     if event.text == reactions.Workflow.APPROVE_TRUE:
         redis_db.hset(event.user_id, "workflow", "approved")
         api_res = commit_solution(event)
-        if api_res[0] != 200:
+        if api_res != 200:
             utils.send_message(
                 vk,
                 event.user_id,
-                message=f"Ошибка на стороне сервера: {api_res[1]}\n Возможно, ссылка не на google drive или нет "
-                        f"публичного доступа")
+                message=dedent("Ошибка. Возможно, ссылка не на google drive или нет публичного доступа"))
         kb = VkKeyboard(one_time=False, inline=True)
         kb.add_button(
             reactions.Workflow.NEXT_VIDEO_BUTTON, color=VkKeyboardColor.POSITIVE
@@ -124,7 +123,8 @@ def on_solution_received(vk: VkApiMethod, event: Event):
 
 def on_end_course(vk: VkApiMethod, event: Event):
     redis_db.hset(event.user_id, "workflow_type", "end")
-    utils.send_message(vk, event.user_id, message=reactions.Workflow.ON_END_COURSE)
+    direction_id = int(redis_db.hgetall(event.user_id)[b"direction_id"].decode("utf-8"))
+    utils.send_message(vk, event.user_id, message=reactions.Workflow.end_course_message(direction_id))
 
 
 def on_random_message(vk: VkApiMethod, event: Event):
@@ -143,6 +143,6 @@ def commit_solution(event: Event):
         redis_db.hdel(event.user_id, "content")
     api_status = post_solution_to_api(video_id, db_user_id, type=video_type, body=body)
     logger.info(
-        f"Solution commit from <{db_user_id}: {video_id} {video_type}> status: {api_status[0]}"
+        f"Solution commit from <{db_user_id}: {video_id} {video_type}> status: {api_status}"
     )
     return api_status
