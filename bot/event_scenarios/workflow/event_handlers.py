@@ -83,7 +83,7 @@ def on_approve(vk: VkApiMethod, event: Event):
     if event.text == reactions.Workflow.APPROVE_TRUE:
         redis_db.hset(event.user_id, "workflow", "approved")
         api_res = commit_solution(event)
-        if api_res[0] != 200:
+        if api_res != 200:
             utils.send_message(
                 vk,
                 event.user_id,
@@ -142,6 +142,6 @@ def commit_solution(event: Event):
         redis_db.hdel(event.user_id, "content")
     api_status = post_solution_to_api(video_id, db_user_id, type=video_type, body=body)
     logger.info(
-        f"Solution commit from <{db_user_id}: {video_id} {video_type}> status: {api_status[0]}"
+        f"Solution commit from <{db_user_id}: {video_id} {video_type}> status: {api_status}"
     )
     return api_status
